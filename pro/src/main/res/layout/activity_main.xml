@@ -99,6 +99,23 @@
                 android:layout_weight="1" />
 
             <android.support.design.widget.FloatingActionButton
+                android:id="@+id/floatingActionButton4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:onClick="gallery"
+                android:scaleType="centerCrop"
+                app:fabSize="normal"
+                app:srcCompat="@drawable/gallery" />
+
+            <Space
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+
+            <android.support.design.widget.FloatingActionButton
                 android:id="@+id/floatingActionButton2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -120,6 +137,13 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="100dp"
         android:src="@drawable/cam" />
+
+    <include
+        android:id="@+id/QRimgRead"
+        layout="@layout/qr_img_read"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
     <include
         android:id="@+id/ViewInfo"

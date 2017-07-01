@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
@@ -32,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
+import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.database.DataSnapshot;
@@ -60,6 +62,7 @@ public class MainActivity extends Activity {
     private SurfaceView cameraView;
     private TextView barcodeInfo;
 
+    public Uri QRImgURI;
     private static final String TAG = "MainActivity";
 
     @Override
@@ -438,7 +441,7 @@ public class MainActivity extends Activity {
                 // whenever data at this location is updated.
                 String value = dataSnapshot.getValue(String.class);
                 Log.d(TAG, "Version Code: " + value);
-                if(value.equals("1")){
+                if(value.equals("3")){
                     Button bt=(Button)findViewById(R.id.buttonUpdate);
                     bt.setVisibility(View.INVISIBLE);
                 }else {
@@ -467,4 +470,120 @@ public class MainActivity extends Activity {
     }
 
 
+
+    public void QRgallery(View v){
+
+        performFileSearch();
+        Toast.makeText(MainActivity.this, "Select QR Code Image from phone", Toast.LENGTH_LONG).show();
+
+    }
+    public void gallery(View v){
+
+        View ReadQRimg=(View)findViewById(R.id.QRimgRead);
+        ReadQRimg.setVisibility(View.VISIBLE);
+
+        LinearLayout LL = (LinearLayout) findViewById(R.id.linearLayout);
+        LL.setVisibility(View.GONE);
+        ImageView TargetIMG = (ImageView) findViewById(R.id.imageView);
+        TargetIMG.setVisibility(View.GONE);
+    }
+    public void performFileSearch() {
+
+        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
+        // browser.
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+
+        // Filter to only show results that can be "opened", such as a
+        // file (as opposed to a list of contacts or timezones)
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        // Filter to show only images, using the image MIME data type.
+        // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
+        // To search for all documents available via installed storage providers,
+        // it would be "*/*".
+        intent.setType("image/*");
+
+        startActivityForResult(intent, READ_REQUEST_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent resultData) {
+
+        // The ACTION_OPEN_DOCUMENT intent was sent with the request code
+        // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
+        // response to some other intent, and the code below shouldn't run at all.
+
+        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // The document selected by the user won't be returned in the intent.
+            // Instead, a URI to that document will be contained in the return intent
+            // provided to this method as a parameter.
+            // Pull that URI using resultData.getData().
+            if (resultData != null) {
+                QRImgURI = resultData.getData();
+                setimg();
+            }
+
+
+        }
+    }
+
+    public void setimg(){
+        TextView txtView = (TextView) findViewById(R.id.textViewQRImgText);
+
+        ImageView QRimg=(ImageView)findViewById(R.id.imageViewQRReadImg);
+        Uri imgUri=QRImgURI;
+        QRimg.setImageURI(null);
+        QRimg.setImageURI(imgUri);
+
+
+        BarcodeDetector detector =
+                new BarcodeDetector.Builder(getApplicationContext())
+                        .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
+                        .build();
+        if(!detector.isOperational()){
+            txtView.setText("Could not set up the detector!");
+            return;
+        }
+
+        Bitmap myQRbitmap=((BitmapDrawable)QRimg.getDrawable()).getBitmap();
+        Frame frame = new Frame.Builder().setBitmap(myQRbitmap).build();
+        SparseArray<Barcode> barcodes = detector.detect(frame);
+
+        int totalCodes = barcodes.size();
+        if (totalCodes > 0) {
+            Barcode thisCode = barcodes.valueAt(0);
+            String QRtext=thisCode.rawValue.toString();
+            if(QRtext!=null){
+                QRcodeText=QRtext;
+                txtView.setText("QR Code Text: "+QRtext);
+            }else{
+                txtView.setText("Error: Image Doesn't contain any QR Code ");
+
+            }
+
+        }else{
+            txtView.setText("Error: Image Doesn't contain any QR Code ");
+
+        }
+
+
+
+    }
+
+    public void ReadQRexit(View v){
+
+
+        finish();
+        Intent intent = new Intent(MainActivity.this,MainActivity.class);
+        startActivity(intent);
+    }
+
+    public void NULLL(View v){
+
+    }
 }
+
+
+
+
