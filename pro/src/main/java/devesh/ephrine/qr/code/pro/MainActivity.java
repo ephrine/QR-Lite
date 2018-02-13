@@ -108,22 +108,7 @@ public class MainActivity extends Activity {
 
 OldText="0";
 
-        //CheckUpdate();
 
-/*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
-                Log.d("QR","Cam Not Permission ");
-            } else if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
-                ReadQR();
-                Log.d("QR","Cam Permission ");
-            }
-        }
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                ReadQR();
-        }*/
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Window w = getWindow(); // in Activity's onCreate() for instance
@@ -517,122 +502,6 @@ OldText="0";
 
 
 
-/*
-
- public void IMGQR(View v){
-
-performFileSearch();
-    }
-
-   public void performFileSearch() {
-
-        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
-        // browser.
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-
-        // Filter to only show results that can be "opened", such as a
-        // file (as opposed to a list of contacts or timezones)
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-
-        // Filter to show only images, using the image MIME data type.
-        // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
-        // To search for all documents available via installed storage providers,
-        // it would be "*/
-       /*    intent.setType("** "); */
-/*
-    startActivityForResult(intent, READ_REQUEST_CODE);
-}
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode,
-                                 Intent resultData) {
-
-        // The ACTION_OPEN_DOCUMENT intent was sent with the request code
-        // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
-        // response to some other intent, and the code below shouldn't run at all.
-
-        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            // The document selected by the user won't be returned in the intent.
-            // Instead, a URI to that document will be contained in the return intent
-            // provided to this method as a parameter.
-            // Pull that URI using resultData.getData().
-
-
-            if (resultData != null) {
-                Uri uri = resultData.getData();
-                Log.i(TAG, "Uri: " + uri.toString());
-
-//loadBitmap(uri.toString());
-
-            }
-        }
-    }
-
-
-    public Bitmap loadBitmap(String url)
-    {
-        Bitmap myQRCode = null;
-        InputStream is = null;
-        BufferedInputStream bis = null;
-        try
-        {
-            URLConnection conn = new URL(url).openConnection();
-            conn.connect();
-            is = conn.getInputStream();
-            bis = new BufferedInputStream(is, 8192);
-            myQRCode = BitmapFactory.decodeStream(bis);
-            try {
-             //   Bitmap myQRCode = BitmapFactory.decodeStream(getAssets().open("qr_code.png"));
-                BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(MainActivity.this)
-                        .setBarcodeFormats(Barcode.QR_CODE)
-                        .build();
-
-                Frame frame = new Frame.Builder().setBitmap(myQRCode).build();
-                SparseArray barcodes = barcodeDetector.detect(frame);
-
-                // Check if at least one barcode was detected
-                if (barcodes.size() != 0) {
-                    barcodeInfo = (TextView) findViewById(R.id.textViewQR);
-barcodeInfo.setText(barcodes.valueAt(0).toString());
-                } else {
-
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        finally {
-            if (bis != null)
-            {
-                try
-                {
-                    bis.close();
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-            if (is != null)
-            {
-                try
-                {
-                    is.close();
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return myQRCode;
-    }
-*/
 
     public void CheckUpdate() {
 
