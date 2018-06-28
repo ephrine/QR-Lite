@@ -1,120 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-        <ImageView
+    <ImageView
         android:id="@+id/imageView7"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:onClick="NULLL"
-            android:visibility="visible"
-            app:srcCompat="@color/bgTrans" />
+        android:visibility="visible"
+        app:srcCompat="@color/bgTrans" />
 
-        <ScrollView
-            android:id="@+id/scrollView2"
-            android:layout_width="wrap_content"
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <android.support.v7.widget.CardView
+                android:id="@+id/cardView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                app:cardElevation="7dp"
+                app:cardUseCompatPadding="true">
 
-                <android.support.v7.widget.CardView
-                    android:id="@+id/cardView"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
-                    app:cardElevation="7dp"
-                    app:cardUseCompatPadding="true">
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/darker_gray"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView10"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Read QR Code from Image"
+                            android:textAlignment="center"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                            android:textColor="@android:color/black"
+                            android:textSize="18sp" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/imageViewQRReadImg"
+                        android:layout_width="300dp"
+                        android:layout_height="300dp"
+                        android:onClick="QRgallery"
+                        android:src="@drawable/qrpreview" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="15dp" />
+
+                    <TextView
+                        android:id="@+id/textViewQRImgText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="---"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.AppCompat"
+                        android:textSize="18sp" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:orientation="vertical">
+                        android:orientation="horizontal">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                        <Button
+                            android:id="@+id/button7"
+                            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/darker_gray"
-                            android:orientation="horizontal">
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:onClick="copyQR"
+                            android:text="copy text " />
 
-                            <TextView
-                                android:id="@+id/textView10"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Read QR Code from Image"
-                                android:textAlignment="center"
-                                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                                android:textColor="@android:color/black"
-                                android:textSize="18sp" />
-
-                        </LinearLayout>
-
-                        <ImageView
-                            android:id="@+id/imageViewQRReadImg"
-                            android:layout_width="300dp"
-                            android:layout_height="300dp"
-                            android:onClick="QRgallery"
-                            android:src="@drawable/qrpreview" />
-
-                        <Space
-                            android:layout_width="match_parent"
-                            android:layout_height="15dp" />
-
-                        <TextView
-                            android:id="@+id/textViewQRImgText"
-                            android:layout_width="match_parent"
+                        <Button
+                            android:id="@+id/button3"
+                            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="---"
-                            android:textAlignment="center"
-                            android:textAppearance="@style/TextAppearance.AppCompat"
-                            android:textSize="18sp" />
+                            android:layout_gravity="center"
 
-                        <Space
-                            android:layout_width="match_parent"
-                            android:layout_height="20dp" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal">
-
-                            <Button
-                                android:id="@+id/button7"
-                                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_weight="1"
-                                android:onClick="copyQR"
-                                android:text="copy text " />
-
-                            <Button
-                                android:id="@+id/button3"
-                                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-
-                                android:layout_weight="1"
-                                android:onClick="ReadQRexit"
-                                android:text="Close" />
-                        </LinearLayout>
+                            android:layout_weight="1"
+                            android:onClick="ReadQRexit"
+                            android:text="Close" />
                     </LinearLayout>
-                </android.support.v7.widget.CardView>
-            </LinearLayout>
-        </ScrollView>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
 
-    </RelativeLayout>
+</RelativeLayout>
 
