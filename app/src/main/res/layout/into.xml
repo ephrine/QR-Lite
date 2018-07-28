@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
     android:layout_width="match_parent"
@@ -111,6 +112,12 @@
                 </android.support.v7.widget.CardView>
             </LinearLayout>
 
+            <com.google.android.gms.ads.AdView
+                android:id="@+id/adView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                ads:adSize="BANNER"
+                app:adUnitId="@string/App_Banner_Unit_ID" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -203,9 +210,16 @@
                 </android.support.v7.widget.CardView>
             </LinearLayout>
 
+            <com.google.android.gms.ads.AdView
+                android:id="@+id/adView4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                ads:adSize="BANNER"
+                app:adUnitId="@string/App_Banner_Unit_ID1" />
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp">
@@ -257,6 +271,13 @@
 
                 </android.support.v7.widget.CardView>
             </LinearLayout>
+
+            <com.google.android.gms.ads.AdView
+                android:id="@+id/adView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                ads:adSize="BANNER"
+                ads:adUnitId="@string/App_Banner_Unit_ID2" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -311,17 +332,18 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="Thank You For Using Premium Version"
-                            android:textAlignment="center"
-                            android:textStyle="italic" />
+                            android:text="@string/app_desc"
+                            android:textAlignment="center" />
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/app_desc"
-                            android:textAlignment="center" />
-
+                            android:onClick="Pro"
+                            android:paddingTop="10dp"
+                            android:text="Get Premium Ad-Free Version "
+                            android:textAlignment="center"
+                            android:textColor="@android:color/holo_orange_light"
+                            android:textStyle="bold" />
 
                         <Space
                             android:layout_width="match_parent"
@@ -370,7 +392,6 @@
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="100dp" />
-
 
         </LinearLayout>
     </ScrollView>

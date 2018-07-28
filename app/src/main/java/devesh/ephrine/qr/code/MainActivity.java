@@ -1,4 +1,4 @@
-package devesh.ephrine.qr.code.pro;
+package devesh.ephrine.qr.code;
 
 import android.app.Activity;
 import android.content.ClipData;
@@ -20,6 +20,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -35,6 +36,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Frame;
@@ -81,6 +87,11 @@ public class MainActivity extends Activity {
     private CameraSource cameraSource;
     private SurfaceView cameraView;
     private TextView barcodeInfo;
+    private InterstitialAd mInterstitialAd;
+    private AdView mAdView;
+    private AdView mAdView3;
+    private AdView mAdView4;
+    private AdView mAdView5;
     private Camera camera = null;
 
     private static Camera getCamera(@NonNull CameraSource cameraSource) {
@@ -111,6 +122,108 @@ public class MainActivity extends Activity {
 
         OldText = "0";
 
+        //CheckUpdate();
+        String AppID = getString(R.string.App_ID);
+        String AppIntID = getString(R.string.App_Int_Unit_ID);
+        // String AppIntID=getString(R.string.App_Int_Unit_ID);
+        MobileAds.initialize(this, AppID);
+
+        mAdView = (AdView) findViewById(R.id.adView);
+        //  mAdView.setVisibility(View.INVISIBLE);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
+        mAdView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+                mAdView.setVisibility(View.VISIBLE);
+                Log.v(TAG, "Ad Loaded !!");
+
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                // Code to be executed when an ad request fails.
+                mAdView.setVisibility(View.INVISIBLE);
+                Log.v(TAG, "Ad Failed !!");
+
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(AppIntID);
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+/*        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                // Load the next interstitial.
+                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+            }
+
+        }); */
+
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when the ad is displayed.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+                finish();
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when when the interstitial ad is closed.
+                finish();
+            }
+        });
+/*
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
+                Log.d("QR","Cam Not Permission ");
+            } else if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
+                ReadQR();
+                Log.d("QR","Cam Permission ");
+            }
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                ReadQR();
+        }*/
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Window w = getWindow(); // in Activity's onCreate() for instance
@@ -153,6 +266,9 @@ public class MainActivity extends Activity {
             public void surfaceCreated(SurfaceHolder holder) {
                 try {
                     cameraSource.start(cameraView.getHolder());
+                    mAdView = (AdView) findViewById(R.id.adView);
+                    AdRequest adRequest = new AdRequest.Builder().build();
+                    mAdView.loadAd(adRequest);
 
                 } catch (IOException ie) {
                     Log.e("CAMERA SOURCE", ie.getMessage());
@@ -161,6 +277,9 @@ public class MainActivity extends Activity {
 
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                mAdView = (AdView) findViewById(R.id.adView);
+                AdRequest adRequest = new AdRequest.Builder().build();
+                mAdView.loadAd(adRequest);
 
             }
 
@@ -214,7 +333,6 @@ public class MainActivity extends Activity {
                                 } else {
                                     imageViewSave.setImageResource(R.drawable.ic_save_black_24dp);
                                 }
-
                             }
 
 
@@ -378,7 +496,15 @@ public class MainActivity extends Activity {
         LL.setVisibility(View.GONE);
         ImageView TargetIMG = (ImageView) findViewById(R.id.imageViewGreenSq);
         TargetIMG.setVisibility(View.GONE);
-
+        mAdView = (AdView) findViewById(R.id.adView);
+        mAdView.setVisibility(View.INVISIBLE);
+//Ad1
+        String AppID = getString(R.string.App_ID);
+/*
+        MobileAds.initialize(this, AppID);
+        NativeExpressAdView NadView = (NativeExpressAdView) findViewById(R.id.adViewNativ);
+        AdRequest request = new AdRequest.Builder().build();
+        NadView.loadAd(request); */
         CheckUpdate();
         //NativAd();
 
@@ -387,6 +513,19 @@ public class MainActivity extends Activity {
         AdRequest request1 = new AdRequest.Builder().build();
         NadView1.loadAd(request1);
 */
+        MobileAds.initialize(this, AppID);
+
+        mAdView3 = (AdView) findViewById(R.id.adView3);
+        AdRequest adRequest3 = new AdRequest.Builder().build();
+        mAdView3.loadAd(adRequest3);
+
+        mAdView4 = (AdView) findViewById(R.id.adView4);
+        AdRequest adRequest4 = new AdRequest.Builder().build();
+        mAdView4.loadAd(adRequest4);
+
+        mAdView5 = (AdView) findViewById(R.id.adView5);
+        AdRequest adRequest5 = new AdRequest.Builder().build();
+        mAdView5.loadAd(adRequest5);
 
         LoadSavedQR();
 
@@ -419,7 +558,9 @@ public class MainActivity extends Activity {
         LL.setVisibility(View.VISIBLE);
         ImageView TargetIMG = (ImageView) findViewById(R.id.imageViewGreenSq);
         TargetIMG.setVisibility(View.VISIBLE);
+        mAdView = (AdView) findViewById(R.id.adView);
 
+        mAdView.setVisibility(View.VISIBLE);
         ReadQR();
 
     }
@@ -555,6 +696,59 @@ public class MainActivity extends Activity {
         QRCodeUrlText = null;
         OldText = "0";
 
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            //   cameraSource.release();
+            // barcodeDetector.release();
+
+            if (mInterstitialAd.isLoaded()) {
+                finish();
+                mInterstitialAd.show();
+
+            } else {
+                Log.d("TAG", "The interstitial wasn't loaded yet.");
+                View BuyPro = (View) findViewById(R.id.buypro);
+                BuyPro.setVisibility(View.VISIBLE);
+                Animation animation1 =
+                        AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slideup);
+                BuyPro.startAnimation(animation1);
+
+            }
+
+            return true;
+        }
+        return true;
+        //return super.onKeyDown(keyCode, event);
+    }
+
+    public void Pro(View v) {
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("market://details?id=devesh.ephrine.qr.code.pro")); //Google play store
+        startActivity(intent);
+
+    }
+
+    public void exit(View v) {
+        if (mInterstitialAd.isLoaded()) {
+            finish();
+            mInterstitialAd.show();
+
+        } else {
+            finish();
+
+        }
+    }
+
+    public void closePro(View v) {
+        View Pro = (View) findViewById(R.id.buypro);
+        Pro.setVisibility(View.GONE);
+        finish();
+        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 
     public void CheckUpdate() {
@@ -836,6 +1030,7 @@ public class MainActivity extends Activity {
                 SharedPreferences.Editor editor = SaveQR.edit();
                 editor.putString("QR", textViewQR.getText().toString());
                 editor.apply();
+
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     // Do something for lollipop and above versions
