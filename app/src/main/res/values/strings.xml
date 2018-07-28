@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">QR Lite</string>
+    <string name="app_version">Version 1.5.0</string>
+
+    <string name="app_desc">A simple App to Scan and Create QR Codes</string>
+
+
+</resources>

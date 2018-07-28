@@ -5,9 +5,11 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
@@ -21,6 +23,7 @@ import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -31,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Frame;
@@ -55,6 +59,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+//import static devesh.ephrine.qr.code.R.id.imageView;
 
 public class MainActivity extends Activity {
 
@@ -64,21 +69,19 @@ public class MainActivity extends Activity {
     public static int white = 0xFFFFFFFF;
     public static int black = 0xFF000000;
     public String QRcodeText;
+    public Uri QRImgURI;
+    public String OldText;
+    public String QRCodeUrlText;
+    public String SettingVibrator;
+    // Save QR Codes---
+    public String QRtotal;
+    public String PrevSavedQRCode = "0";
     boolean flashmode = false;
     private BarcodeDetector barcodeDetector;
     private CameraSource cameraSource;
     private SurfaceView cameraView;
     private TextView barcodeInfo;
-
     private Camera camera = null;
-    public Uri QRImgURI;
-
-    public String OldText;
-
-    public String QRCodeUrlText;
-
-    public String SettingVibrator;
-
 
     private static Camera getCamera(@NonNull CameraSource cameraSource) {
         Field[] declaredFields = CameraSource.class.getDeclaredFields();
@@ -106,8 +109,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-OldText="0";
-
+        OldText = "0";
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -117,15 +119,14 @@ OldText="0";
 
         ReadQR();
 
-        TextView URLFoundTx=(TextView)findViewById(R.id.textView11FoundURL);
+        TextView URLFoundTx = (TextView) findViewById(R.id.textView11FoundURL);
         URLFoundTx.setVisibility(View.INVISIBLE);
 
-        CardView CardViewResults=(CardView)findViewById(R.id.CardViewResults);
-       // CardViewResults.setVisibility(View.INVISIBLE);
+        CardView CardViewResults = (CardView) findViewById(R.id.CardViewResults);
+        // CardViewResults.setVisibility(View.INVISIBLE);
 
-        ImageView OpenURL=(ImageView)findViewById(R.id.imageView8OpenURL);
+        ImageView OpenURL = (ImageView) findViewById(R.id.imageView8OpenURL);
         OpenURL.setVisibility(View.INVISIBLE);
-
 
 
     }
@@ -186,31 +187,40 @@ OldText="0";
                             barcodeInfo.setText(" " +    // Update the TextView
                                     barcodes.valueAt(0).displayValue);
 
-                            ImageView GreenSq=(ImageView)findViewById(R.id.imageViewGreenSq);
+                            ImageView GreenSq = (ImageView) findViewById(R.id.imageViewGreenSq);
                             Animation GreenAqAnim =
                                     AnimationUtils.loadAnimation(getApplicationContext(), R.anim.blink);
                             GreenSq.startAnimation(GreenAqAnim);
 
-                            CardView CardViewResults=(CardView)findViewById(R.id.CardViewResults);
+                            CardView CardViewResults = (CardView) findViewById(R.id.CardViewResults);
                             Animation animation1 =
                                     AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slideleft);
 
                             CardViewResults.setVisibility(View.VISIBLE);
-                            if(OldText.equals(QRcodeText)){
+                            if (OldText.equals(QRcodeText)) {
 
-                            }else {
+                            } else {
                                 CardViewResults.startAnimation(animation1);
                                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                                 v.vibrate(70);
+
+                                ImageView imageViewSave = (ImageView) findViewById(R.id.imageViewSave);
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    // Do something for lollipop and above versions
+                                    Drawable IMG = getDrawable(R.drawable.ic_save_black_24dp);
+                                    imageViewSave.setImageDrawable(IMG);
+
+                                } else {
+                                    imageViewSave.setImageResource(R.drawable.ic_save_black_24dp);
+                                }
 
                             }
 
 
                             QRcodeText = barcodes.valueAt(0).displayValue;
-                            OldText=QRcodeText;
+                            OldText = QRcodeText;
                             pullLinks(QRcodeText);
-
-
 
 
                         }
@@ -269,9 +279,60 @@ OldText="0";
     protected void onDestroy() {
         super.onDestroy();
 
+        camera = getCamera(cameraSource);
+        if (camera != null) {
+            try {
+                // flashmode = !flashmode;
+                if (flashmode) {
+                    Camera.Parameters param = camera.getParameters();
+                    param.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                    camera.setParameters(param);
+                    flashmode = !flashmode;
+                    //  showToast("Flash Switched ON");
+                } else {
+                    //showToast("Flash Switched Off");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         cameraSource.release();
         barcodeDetector.release();
 
+
+    }
+
+    @Override
+    protected void onPause() {
+        camera = getCamera(cameraSource);
+        if (camera != null) {
+            try {
+                // flashmode = !flashmode;
+                if (flashmode) {
+                    Camera.Parameters param = camera.getParameters();
+                    param.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                    camera.setParameters(param);
+                    flashmode = !flashmode;
+                    //  showToast("Flash Switched ON");
+                } else {
+                    //showToast("Flash Switched Off");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        //   cameraSource.release();
+        // barcodeDetector.release();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        ReadQR();
+
+        super.onResume();
     }
 
     @Override
@@ -318,12 +379,6 @@ OldText="0";
         ImageView TargetIMG = (ImageView) findViewById(R.id.imageViewGreenSq);
         TargetIMG.setVisibility(View.GONE);
 
-//Ad1
-/*
-        MobileAds.initialize(this, AppID);
-        NativeExpressAdView NadView = (NativeExpressAdView) findViewById(R.id.adViewNativ);
-        AdRequest request = new AdRequest.Builder().build();
-        NadView.loadAd(request); */
         CheckUpdate();
         //NativAd();
 
@@ -333,6 +388,7 @@ OldText="0";
         NadView1.loadAd(request1);
 */
 
+        LoadSavedQR();
 
     }
 
@@ -364,9 +420,9 @@ OldText="0";
         ImageView TargetIMG = (ImageView) findViewById(R.id.imageViewGreenSq);
         TargetIMG.setVisibility(View.VISIBLE);
 
+        ReadQR();
+
     }
-
-
 
     public void GenerateQR(View v) {
 
@@ -465,54 +521,51 @@ OldText="0";
     public void reset(View v) {
         barcodeInfo = (TextView) findViewById(R.id.textViewQR);
         barcodeInfo.setText("Finding QR code..");
-        final CardView CardViewResults=(CardView)findViewById(R.id.CardViewResults);
+        final CardView CardViewResults = (CardView) findViewById(R.id.CardViewResults);
 
         Animation animation1 =
                 AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slideright);
         CardViewResults.startAnimation(animation1);
-animation1.setAnimationListener(new Animation.AnimationListener() {
-    @Override
-    public void onAnimationStart(Animation animation) {
-    }
+        animation1.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
 
-    @Override
-    public void onAnimationEnd(Animation animation) {
-        CardViewResults.setVisibility(View.INVISIBLE);
-
-
-    }
-
-    @Override
-    public void onAnimationRepeat(Animation animation) {
-    }
-});
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                CardViewResults.setVisibility(View.INVISIBLE);
 
 
-        ImageView OpenURL=(ImageView)findViewById(R.id.imageView8OpenURL);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+
+
+        ImageView OpenURL = (ImageView) findViewById(R.id.imageView8OpenURL);
         OpenURL.setVisibility(View.INVISIBLE);
 
-        TextView URLFoundTx=(TextView)findViewById(R.id.textView11FoundURL);
+        ImageView SaveQR = (ImageView) findViewById(R.id.imageViewSave);
+        SaveQR.setImageResource(R.drawable.ic_save_black_24dp);
+
+        TextView URLFoundTx = (TextView) findViewById(R.id.textView11FoundURL);
         URLFoundTx.setVisibility(View.INVISIBLE);
-QRCodeUrlText=null;
-OldText="0";
+        QRCodeUrlText = null;
+        OldText = "0";
 
     }
-
-
-
-
-
 
     public void CheckUpdate() {
 
         // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference Update = database.getReference("VersionCode");
+        DatabaseReference Update = database.getReference("/QR-Lite/VersionCode");
         // Update.setValue("1");
-
+        // Read from the database
         //final String AppVersionCode=getString(R.string.app_version_code);
-        final String AppVersionCode=String.valueOf(BuildConfig.VERSION_CODE);
-
+        final String AppVersionCode = String.valueOf(BuildConfig.VERSION_CODE);
         Update.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -547,9 +600,9 @@ OldText="0";
 
     }
 
-    public void QRgallery(View v){
+    public void QRgallery(View v) {
 
-performFileSearch();
+        performFileSearch();
         Toast.makeText(MainActivity.this, "Select QR Code Image from phone", Toast.LENGTH_LONG).show();
 
     }
@@ -595,11 +648,11 @@ performFileSearch();
         }
     }
 
-    public void setimg(){
+    public void setimg() {
         TextView txtView = (TextView) findViewById(R.id.textViewQRImgText1);
 
-        ImageView QRimg=(ImageView)findViewById(R.id.imageViewQRReadImg1);
-        Uri imgUri=QRImgURI;
+        ImageView QRimg = (ImageView) findViewById(R.id.imageViewQRReadImg1);
+        Uri imgUri = QRImgURI;
         QRimg.setImageURI(null);
         QRimg.setImageURI(imgUri);
 
@@ -608,28 +661,28 @@ performFileSearch();
                 new BarcodeDetector.Builder(getApplicationContext())
                         .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
                         .build();
-        if(!detector.isOperational()){
+        if (!detector.isOperational()) {
             txtView.setText("Could not set up the detector!");
             return;
         }
 
-        Bitmap myQRbitmap=((BitmapDrawable)QRimg.getDrawable()).getBitmap();
+        Bitmap myQRbitmap = ((BitmapDrawable) QRimg.getDrawable()).getBitmap();
         Frame frame = new Frame.Builder().setBitmap(myQRbitmap).build();
         SparseArray<Barcode> barcodes = detector.detect(frame);
 
         int totalCodes = barcodes.size();
         if (totalCodes > 0) {
             Barcode thisCode = barcodes.valueAt(0);
-            String QRtext=thisCode.rawValue.toString();
-            if(QRtext!=null){
-                QRcodeText=QRtext;
-                txtView.setText("QR Code Text: "+QRtext);
-            }else{
+            String QRtext = thisCode.rawValue.toString();
+            if (QRtext != null) {
+                QRcodeText = QRtext;
+                txtView.setText("QR Code Text: " + QRtext);
+            } else {
                 txtView.setText("Error: Image Doesn't contain any QR Code ");
 
             }
 
-        }else{
+        } else {
             txtView.setText("Error: Image Doesn't contain any QR Code ");
 
         }
@@ -637,7 +690,7 @@ performFileSearch();
 
     }
 
-    public void ReadQRexit(View v){
+    public void ReadQRexit(View v) {
         final View info = (View) findViewById(R.id.ViewInfo);
         Animation animation1 =
                 AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slidedown);
@@ -651,7 +704,7 @@ performFileSearch();
             public void onAnimationEnd(Animation animation) {
                 info.setVisibility(View.INVISIBLE);
                 finish();
-                Intent intent = new Intent(MainActivity.this,MainActivity.class);
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
                 startActivity(intent);
             }
 
@@ -661,14 +714,12 @@ performFileSearch();
         });
 
 
-
-
     }
 
-public void NULLL(View v){}
+    public void NULLL(View v) {
+    }
 
-    public ArrayList<String> pullLinks(String text)
-    {
+    public ArrayList<String> pullLinks(String text) {
         ArrayList<String> links = new ArrayList<String>();
 
         //String regex = "\\(?\\b(http://|www[.])[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]";
@@ -676,29 +727,28 @@ public void NULLL(View v){}
 
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(text);
-if(m.find()){
-    String urlStr = m.group();
+        if (m.find()) {
+            String urlStr = m.group();
 
-    if (urlStr.startsWith("(") && urlStr.endsWith(")"))
-    {
-        urlStr = urlStr.substring(1, urlStr.length() - 1);
-    }
+            if (urlStr.startsWith("(") && urlStr.endsWith(")")) {
+                urlStr = urlStr.substring(1, urlStr.length() - 1);
+            }
 
 
-    links.add(urlStr);
-    //     Toast.makeText(MainActivity.this, "URL Found:" +urlStr, Toast.LENGTH_SHORT).show();
+            links.add(urlStr);
+            //     Toast.makeText(MainActivity.this, "URL Found:" +urlStr, Toast.LENGTH_SHORT).show();
 
-    TextView URLFoundTx=(TextView)findViewById(R.id.textView11FoundURL);
-    ImageView OpenURL=(ImageView)findViewById(R.id.imageView8OpenURL);
-    QRCodeUrlText=urlStr;
-    URLFoundTx.setVisibility(View.VISIBLE);
-    OpenURL.setVisibility(View.VISIBLE);
-}else {
-    TextView URLFoundTx=(TextView)findViewById(R.id.textView11FoundURL);
-    ImageView OpenURL=(ImageView)findViewById(R.id.imageView8OpenURL);
-    URLFoundTx.setVisibility(View.INVISIBLE);
-    OpenURL.setVisibility(View.INVISIBLE);
-}
+            TextView URLFoundTx = (TextView) findViewById(R.id.textView11FoundURL);
+            ImageView OpenURL = (ImageView) findViewById(R.id.imageView8OpenURL);
+            QRCodeUrlText = urlStr;
+            URLFoundTx.setVisibility(View.VISIBLE);
+            OpenURL.setVisibility(View.VISIBLE);
+        } else {
+            TextView URLFoundTx = (TextView) findViewById(R.id.textView11FoundURL);
+            ImageView OpenURL = (ImageView) findViewById(R.id.imageView8OpenURL);
+            URLFoundTx.setVisibility(View.INVISIBLE);
+            OpenURL.setVisibility(View.INVISIBLE);
+        }
         /*
         while(m.find())
         {
@@ -726,19 +776,218 @@ if(m.find()){
         return links;
     }
 
-    public void web(View v){
-    if(QRCodeUrlText.startsWith("http://") || QRCodeUrlText.startsWith("https://")){
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(QRCodeUrlText)); //Google play store
-        startActivity(intent);
-    }else {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("http://"+QRCodeUrlText)); //Google play store
-        startActivity(intent);
+    public void web(View v) {
+        if (QRCodeUrlText.startsWith("http://") || QRCodeUrlText.startsWith("https://")) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(QRCodeUrlText)); //Google play store
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("http://" + QRCodeUrlText)); //Google play store
+            startActivity(intent);
+        }
+
+
     }
 
+    public void SaveQR(View v) {
+        TextView textViewQR = (TextView) findViewById(R.id.textViewQR);
+        ImageView imageViewSave = (ImageView) findViewById(R.id.imageViewSave);
+
+        if (textViewQR != null) {
+            if (textViewQR.equals("Finding QR code..") || PrevSavedQRCode.equals(QRcodeText)) {
+                // Do Nothing LOL !! :)
+            } else {
+                Context context = getApplicationContext();
+                SharedPreferences SaveQRTotal = context.getSharedPreferences(
+                        "Total", Context.MODE_PRIVATE);
+                QRtotal = SaveQRTotal.getString("Total", QRtotal);
+
+                if (QRtotal != null) {
+                    if (QRtotal.equals("null")) {
+
+                        SharedPreferences.Editor editor = SaveQRTotal.edit();
+                        editor.putString("Total", "1");
+                        editor.apply();
+                        QRtotal = "1";
+                        Log.i(TAG, "QRtotal #1: " + QRtotal);
+                    } else {
+                        Log.i(TAG, "QRtotal #2: " + QRtotal);
+                        SharedPreferences.Editor editor = SaveQRTotal.edit();
+                        int tt = Integer.valueOf(QRtotal) + 1;
+                        editor.putString("Total", String.valueOf(tt));
+                        editor.apply();
+                        Log.i(TAG, "QRtotal #2: " + QRtotal);
+                    }
+
+
+                } else {
+
+                    SharedPreferences.Editor editor = SaveQRTotal.edit();
+                    editor.putString("Total", "2");
+                    editor.apply();
+                    QRtotal = "1";
+                    Log.i(TAG, "QRtotal #3: " + QRtotal);
+                }
+
+
+                SharedPreferences SaveQR = context.getSharedPreferences(
+                        QRtotal, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = SaveQR.edit();
+                editor.putString("QR", textViewQR.getText().toString());
+                editor.apply();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    // Do something for lollipop and above versions
+                    Drawable IMG = getDrawable(R.drawable.ic_save_green_24dp);
+                    imageViewSave.setImageDrawable(IMG);
+
+                } else {
+                    imageViewSave.setImageResource(R.drawable.ic_save_green_24dp);
+                }
+                Toast.makeText(getApplicationContext(), "Saved !", Toast.LENGTH_SHORT).show();
+                QRcodeText = PrevSavedQRCode;
+
+            }
+
+        }
 
 
     }
+
+    public void LoadSavedQR() {
+        final Context context = getApplicationContext();
+        SharedPreferences SaveQRTotal = context.getSharedPreferences(
+                "Total", Context.MODE_PRIVATE);
+        QRtotal = SaveQRTotal.getString("Total", QRtotal);
+
+        //QRtotal="50";
+
+        Log.v(TAG, "LoadSavedQR !!!!");
+        Log.v(TAG, "QRtotal: " + QRtotal);
+
+
+        if (QRtotal != null) {
+            if (QRtotal.equals("null")) {
+                // Do Nothing LOLZ!!! :)
+
+            } else {
+
+                Button DeleteBut = (Button) findViewById(R.id.ButtonDelete1);
+                DeleteBut.setVisibility(View.VISIBLE);
+
+                int t = Integer.valueOf(QRtotal) - 1;
+                int J = 0;
+                //   if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                //     Drawable DeleteIMG=getDrawable(R.drawable.ic_delete_forever_black_24dp);
+                //   }
+
+                View.OnClickListener clicks = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        String Tag = v.getTag().toString();
+
+                        SharedPreferences PrefJJ = context.getSharedPreferences(
+                                Tag, Context.MODE_PRIVATE);
+
+                        String Text = "";
+                        Text = PrefJJ.getString("QR", Text);
+
+                        ClipboardManager cp = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("", Text);
+                        cp.setPrimaryClip(clip);
+                        Toast.makeText(MainActivity.this, "Text Copied to Clipboard", Toast.LENGTH_SHORT).show();
+
+
+                    }
+                };
+
+
+
+            /*
+              ClipboardManager cp = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("QR code: ", QRcodeText);
+            cp.setPrimaryClip(clip);
+            Toast.makeText(MainActivity.this, "Text Copied to Clipboard", Toast.LENGTH_SHORT).show();
+
+            */
+
+                for (int j = t; j > J; j--) { // file name 5
+                    String JJ = String.valueOf(j);
+                    SharedPreferences PrefJJ = context.getSharedPreferences(
+                            JJ, Context.MODE_PRIVATE);
+
+                    String Text = "";
+                    Text = PrefJJ.getString("QR", Text);
+                    //Text="1122156scsdcsdc";
+
+                    LinearLayout QRLayout = (LinearLayout) findViewById(R.id.LLSavdQR);
+
+                    LinearLayout LL1 = new LinearLayout(MainActivity.this);
+                    LL1.setLayoutParams(new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    LL1.setOrientation(LinearLayout.HORIZONTAL);
+                    LL1.setTag(JJ);
+                    LL1.setOnClickListener(clicks);
+                    LL1.setPadding(10, 10, 10, 10);
+
+                    QRLayout.addView(LL1);
+
+                    ImageView img = new ImageView(MainActivity.this);
+                    img.setImageResource(R.drawable.ic_content_copy_black_24dp);
+                    img.requestLayout();
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    img.setLayoutParams(layoutParams);
+
+                    ///  img.getLayoutParams().height = 20;
+                    //  img.getLayoutParams().width = 20;
+
+                    LL1.addView(img);
+
+
+                    final TextView txTitle = new TextView(MainActivity.this);
+                    txTitle.setLayoutParams(new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                    // txTitle.setTypeface(null, Typeface.BOLD);
+                    txTitle.setTextSize(20);
+                    txTitle.setText(Text);  // Name
+                    //txUserName.setGravity(View.TEXT_ALIGNMENT_CENTER);
+                    LL1.addView(txTitle);
+                    Log.v(TAG, "LoadSavedQR: " + Text + "\n j:" + JJ);
+
+
+                }
+
+
+            }
+
+
+        } else {
+            Button DeleteBut = (Button) findViewById(R.id.ButtonDelete1);
+            DeleteBut.setVisibility(View.INVISIBLE);
+        }
+
+    }
+
+    public void SavedDelete(View v) {
+//deleteAppData();
+
+        Context context = getApplicationContext();
+        SharedPreferences SaveQRTotal = context.getSharedPreferences(
+                "Total", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = SaveQRTotal.edit();
+        editor.clear();
+        editor.apply();
+
+        LinearLayout LLSavedQR = (LinearLayout) findViewById(R.id.LLSavdQR);
+        LLSavedQR.removeAllViewsInLayout();
+        //LoadSavedQR();
+
+    }
+
 
 }

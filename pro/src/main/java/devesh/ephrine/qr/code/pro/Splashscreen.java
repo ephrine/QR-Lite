@@ -1,6 +1,5 @@
 package devesh.ephrine.qr.code.pro;
 
-import android.*;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -27,9 +26,9 @@ public class Splashscreen extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                Log.d("QR","Cam Not Permission ");
-            } else if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
-                Log.d("QR","Cam Permission ");
+                Log.d("QR", "Cam Not Permission ");
+            } else if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                Log.d("QR", "Cam Permission ");
                 AppStart();
             }
         }
@@ -67,22 +66,22 @@ public class Splashscreen extends Activity {
     }
 
 
-    public void AppStart(){
+    public void AppStart() {
         Thread background = new Thread() {
             public void run() {
 
                 try {
                     // Thread will sleep for 5 seconds
 
-                        sleep(1 * 1000);
+                    sleep(1 * 1000);
 
-                        // After 2 seconds redirect to another intent
+                    // After 2 seconds redirect to another intent
 
-                        Intent i = new Intent(getBaseContext(), MainActivity.class);
-                        startActivity(i);
+                    Intent i = new Intent(getBaseContext(), MainActivity.class);
+                    startActivity(i);
 
-                        // Remove activity
-                        finish();
+                    // Remove activity
+                    finish();
 
                 } catch (Exception e) {
 
@@ -94,7 +93,6 @@ public class Splashscreen extends Activity {
         background.start();
 
     }
-
 
 
 }
